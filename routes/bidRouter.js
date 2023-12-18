@@ -1,5 +1,6 @@
 const express = require('express');
 const bidModel = require('../models/bid');
+const userModel = require('../models/user');
 const bidRouter = express.Router();
 
 bidRouter.get('/', async (req, res) => {
@@ -11,7 +12,7 @@ bidRouter.get('/', async (req, res) => {
     }
 })
 
-// get bids by product
+// get all bids by product
 bidRouter.get('/:prod', async (req, res) => {
     try {
         const product = req.params.prod;
@@ -21,7 +22,6 @@ bidRouter.get('/:prod', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 })
-
 
 bidRouter.post('/', async (req, res) => {
     try {

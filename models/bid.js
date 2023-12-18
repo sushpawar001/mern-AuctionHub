@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const productModel = require('./product');
 
 const bidSchema = new mongoose.Schema({
     amount: {
@@ -23,23 +24,30 @@ bidSchema.pre('save', async function (next) {
     try {
         // Capture the current bid document
         const currentBid = this;
+        const currentProduct = await productModel.findById(currentBid.product);
 
-        // Find the latest bid for the same product
-        const previousBid = await this.constructor
-            .findOne({ product: currentBid.product })
-            .sort('-amount'); // Retrieve the previous bid, sorting by amount in descending order
-        console.log("previousBid: ", previousBid)
-        // Check if there is a previous bid and if the current bid amount is greater
-        if (previousBid && currentBid.amount <= previousBid.amount) {
-            // If the current bid amount is not greater than the previous bid, create an error
-            const error = new Error('Bid amount must be greater than the previous bid.');
-            return next(error); // Return the error to prevent saving the bid
+        if (currentProduct) {
+            // Find the latest bid for the same product
+            const previousBid = await this.constructor
+                .findOne({ product: currentBid.product })
+                .sort('-amount'); // Retrieve the previous bid, sorting by amount in descending order
+
+            if (previousBid && currentBid.amount <= previousBid.amount) {
+                const error = new Error('Bid amount must be greater than the previous bid.');
+                return next(error);
+            }
+
+            if (currentBid.amount < currentProduct.minimunBid) {
+                const error = new Error('Bid amount must be greater than minimum bid amount.');
+                return next(error);
+            }
+
+        } else {
+            const error = new Error('No Product found!');
+            return next(error);
         }
-
-        // If the conditions are met, proceed to the next middleware or save operation
         next();
     } catch (error) {
-        // Handle any errors that occur during the asynchronous operations
         next(error);
     }
 });

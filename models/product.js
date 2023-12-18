@@ -13,12 +13,9 @@ const productSchema = new mongoose.Schema({
         data: Buffer,
         contentType: String
     },
-    startingBid: {
+    minimunBid: {
         type: Number,
         required: true
-    },
-    currentBid: {
-        type: Number
     },
     startingDate: {
         type: Date,

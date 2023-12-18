@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/user');
 const productModel = require('../models/product');
+const bidModel = require('../models/bid');
 const privateKey = process.env.JWT_PRIVATE_KEY
 
 userRouter.get('/', async (req, res) => {
@@ -45,6 +46,21 @@ userRouter.get('/:email/products/', async (req, res) => {
         res.json({ message: 'Error retrieving products', error: error.message });
     }
 });
+
+// get bids by user email
+userRouter.get('/:email/bids/', async (req, res) => {
+    try {
+        const user = await userModel.findOne({ email: req.params.email });
+        if (user) {
+            const bids = await bidModel.find({ bidder: user._id });
+            res.json({ bids })
+        } else {
+            res.status(400).json({ message: 'No user found!' });
+        }
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+})
 
 
 // create a new user
