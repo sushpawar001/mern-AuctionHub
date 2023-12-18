@@ -19,7 +19,7 @@ userRouter.get('/:email', async (req, res) => {
             res.json({ "users": users })
         }
     } catch (error) {
-        res.json({ 'message': 'No user found!', 'error': error })
+        res.json({ 'message': 'No user found!', 'error': error.message })
     }
 
 });
@@ -29,11 +29,10 @@ userRouter.get('/:email/products/', async (req, res) => {
     try {
         const email = req.params.email;
         const user = await userModel.findOne({ email });
-
+        console.log(user)
         if (user) {
             if (user.isSeller) {
-                console.log('Seller')
-                const products = await productModel.find({ seller: user._id }).populate('seller');
+                const products = await productModel.find({ seller: user._id });
                 res.json({ user, products });
             } else {
                 res.json({ message: 'User does not have seller permissions' });
@@ -42,7 +41,8 @@ userRouter.get('/:email/products/', async (req, res) => {
             res.json({ message: 'No user found!' });
         }
     } catch (error) {
-        res.json({ message: 'Error retrieving products', error });
+        console.log(error)
+        res.json({ message: 'Error retrieving products', error: error.message });
     }
 });
 
@@ -64,7 +64,7 @@ userRouter.post('/', async (req, res) => {
         }
 
     } catch (error) {
-        res.json({ 'message': 'No data found', 'error': error });
+        res.json({ 'message': 'No data found', 'error': error.message });
     }
 })
 
@@ -85,7 +85,7 @@ userRouter.post('/login/', async (req, res) => {
         else res.status(401).json({ "message": "Invalid password" });
 
     } catch (error) {
-        res.status(500).json({ 'message': 'No data found', 'error': error });
+        res.status(500).json({ 'message': 'No data found', 'error': error.message });
     }
 
 })
@@ -121,7 +121,7 @@ userRouter.delete('/:email', async (req, res) => {
             res.json({ 'message': 'No User found' });
         }
     } catch (error) {
-        res.json({ 'message': 'Error Occured', 'error': error });
+        res.json({ 'message': 'Error Occured', 'error': error.message });
     }
 });
 
