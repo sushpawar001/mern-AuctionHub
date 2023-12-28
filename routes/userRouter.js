@@ -89,16 +89,22 @@ userRouter.post('/login/', async (req, res) => {
     const { password, email } = req.body;
     try {
         const user = await userModel.findOne({ email: email })
-        if (!user) res.status(401).json({ "message": "No user found!" });
+        if (!user) {
+            res.status(401).json({ "message": "No user found!" });
+        }
         const verify = await bcrypt.compare(password, user.password)
         if (verify) {
             // Generate JWT token
             jwt.sign({ userId: user._id }, privateKey, { expiresIn: '1d' }, (err, token) => {
-                if (err) res.status(500).json({ "message": "Error while generating token" });
+                if (err) {
+                    res.status(500).json({ "message": "Error while generating token" });
+                }
                 res.status(200).json({ user, token })
             })
         }
-        else res.status(401).json({ "message": "Invalid password" });
+        else {
+            res.status(401).json({ "message": "Invalid password" });
+        }
 
     } catch (error) {
         res.status(500).json({ 'message': 'No data found', 'error': error.message });
