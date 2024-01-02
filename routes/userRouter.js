@@ -14,7 +14,7 @@ userRouter.get('/', async (req, res) => {
 
 userRouter.get('/:email', async (req, res) => {
     try {
-        const email = req.params.email
+        const { email } = req.params
         const users = await userModel.find({ email });
         if (users.length) {
             res.json({ "users": users })
@@ -64,9 +64,16 @@ userRouter.get('/:email/bids/', async (req, res) => {
 
 
 // create a new user
-userRouter.post('/', async (req, res) => {
+userRouter.post('/signup/', async (req, res) => {
     const { username, password, email } = req.body;
     try {
+        const existingUser = await userModel.findOne({ $or: [{ email }, { username }] });
+
+        if (existingUser) {
+            const message = existingUser.email === email ? 'User with email already exists!' : 'User with username already exists!';
+            return res.status(400).json({ message });
+        }
+
         const hashpass = await bcrypt.hash(password, 12);
         console.log(hashpass)
         const user = await userModel.create({
@@ -76,11 +83,11 @@ userRouter.post('/', async (req, res) => {
         })
 
         if (user) {
-            res.json({ 'message': 'New user created', 'user': user });
+            return res.json({ 'message': 'New user created', 'user': user });
         }
 
     } catch (error) {
-        res.json({ 'message': 'No data found', 'error': error.message });
+        res.status(500).json({ 'message': 'Error creating user', 'error': error.message });
     }
 })
 
@@ -112,6 +119,7 @@ userRouter.post('/login/', async (req, res) => {
 
 })
 
+// update user
 userRouter.put('/:email', async (req, res) => {
     const email = req.params.email;
     const data = req.body;

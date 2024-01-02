@@ -13,10 +13,17 @@ const productSchema = new mongoose.Schema({
         data: Buffer,
         contentType: String
     },
-    minimunBid: {
+    minimumBid: {
         type: Number,
         required: true
     },
+    currentBid: {
+        type: Number,
+        default: function () {
+            return this.minimumBid;
+        }
+    },
+    bids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'bid' }],
     startingDate: {
         type: Date,
         required: true,

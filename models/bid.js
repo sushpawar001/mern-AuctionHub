@@ -37,8 +37,13 @@ bidSchema.pre('save', async function (next) {
                 return next(error);
             }
 
-            if (currentBid.amount < currentProduct.minimunBid) {
+            if (currentBid.amount < currentProduct.minimumBid) {
                 const error = new Error('Bid amount must be greater than minimum bid amount.');
+                return next(error);
+            }
+
+            if (previousBid && currentBid.bidder._id.equals(previousBid.bidder._id)) {
+                const error = new Error('User has current highest bid.');
                 return next(error);
             }
 
@@ -51,7 +56,6 @@ bidSchema.pre('save', async function (next) {
         next(error);
     }
 });
-
 
 const bidModel = mongoose.model('bid', bidSchema);
 module.exports = bidModel;
